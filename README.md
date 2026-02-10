@@ -101,6 +101,8 @@ Visualizations were created using **Matplotlib** and **Seaborn**.
 ---
 
 ## Project Structure
+
+```text
 GITHUB_EDA_PROJECT/
 │
 ├── data/
@@ -137,6 +139,7 @@ GITHUB_EDA_PROJECT/
 ├── .env
 ├── .gitignore
 └── README.md
+
 
 ---
 
