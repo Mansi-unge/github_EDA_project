@@ -139,6 +139,7 @@ GITHUB_EDA_PROJECT/
 ├── .env
 ├── .gitignore
 └── README.md
+```
 
 
 ---
