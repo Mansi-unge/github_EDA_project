@@ -6,7 +6,7 @@ import os
 # ----------------------------------
 
 # Path where all language-wise CSV files are stored
-data_folder = "../data"
+data_folder = "../data/raw"
 
 # ----------------------------------
 # 2. CSV FILE MAPPING

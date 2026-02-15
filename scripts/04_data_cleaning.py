@@ -11,7 +11,7 @@ import pandas as pd
 # 1. Load the raw dataset
 # --------------------------------------------------
 # Reading the merged GitHub repository dataset
-df = pd.read_csv("../data/all_github_repos.csv")
+df = pd.read_csv("../data/raw/all_github_repos.csv")
 
 # Display original shape of the dataset
 print("Original Dataset Shape:", df.shape)
@@ -115,7 +115,7 @@ print("-" * 50)
 # 9. Save Cleaned Dataset
 # --------------------------------------------------
 # Saving cleaned dataset for EDA and visualization
-df.to_csv("../data/cleaned_github_repos.csv", index=False)
+df.to_csv("../data/processed/cleaned_github_repos.csv", index=False)
 
 print("Cleaned dataset saved as 'cleaned_github_repos.csv'")
 print("Final Dataset Shape:", df.shape)

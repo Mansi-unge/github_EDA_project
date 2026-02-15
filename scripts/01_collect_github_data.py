@@ -1,8 +1,8 @@
-import requests
-import csv
-import time
-import os
-from dotenv import load_dotenv
+import requests     #to send request to GitHub API
+import csv     #to save data into CSV file
+import time   #to pause between requests (avoid rate limit)
+import os    #to read environment variables
+from dotenv import load_dotenv  #to read secret GitHub token from .env file
 
 # Load environment variables from .env file
 # This is used to securely read the GitHub token
@@ -90,7 +90,7 @@ for language in languages:
     # ----------------------------------
 
     # File path for saving language-specific data
-    file_path = f"../data/{language}_repos.csv"
+    file_path = f"../data/raw/{language}_repos.csv"
 
     # Open CSV file in write mode
     with open(file_path, "w", newline="", encoding="utf-8") as file:

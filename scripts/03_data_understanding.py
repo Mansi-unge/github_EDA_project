@@ -8,7 +8,7 @@ import pandas as pd
 # -------------------------------------------------------
 
 # Load the merged GitHub repository dataset from the data folder
-df = pd.read_csv("../data/all_github_repos.csv")
+df = pd.read_csv("../data/raw/all_github_repos.csv")
 
 # -------------------------------------------------------
 # 1. Check the shape of the dataset

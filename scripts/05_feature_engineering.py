@@ -8,7 +8,7 @@ import pandas as pd
 # --------------------------------------------------
 
 # 1. Load cleaned dataset
-df = pd.read_csv("../data/cleaned_github_repos.csv")
+df = pd.read_csv("../data/processed/cleaned_github_repos.csv")
 
 print("Dataset Loaded for Feature Engineering")
 print("Current Shape:", df.shape)
@@ -77,7 +77,7 @@ print("-" * 50)
 # --------------------------------------------------
 # 8. Save Feature-Engineered Dataset
 # --------------------------------------------------
-df.to_csv("../data/featured_github_repos.csv", index=False)
+df.to_csv("../data/processed/featured_github_repos.csv", index=False)
 
 print("Feature-engineered dataset saved as 'featured_github_repos.csv'")
 print("Final Dataset Shape:", df.shape)

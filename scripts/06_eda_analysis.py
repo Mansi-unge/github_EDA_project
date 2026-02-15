@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
+# Graphs are drawn to visually analyze trends, distributions, and relationships in the data, making insights easier to identify and communicate.
+
 # --------------------------------------------------
 # STEP 6: EXPLORATORY DATA ANALYSIS (EDA)
 # --------------------------------------------------
@@ -21,7 +23,7 @@ import os
 os.makedirs("../plots", exist_ok=True)
 
 # Load the feature-engineered dataset
-df = pd.read_csv("../data/featured_github_repos.csv")
+df = pd.read_csv("../data/processed/featured_github_repos.csv")
 
 # Convert date columns to datetime format for time-based analysis
 df["created_at"] = pd.to_datetime(df["created_at"])
@@ -41,6 +43,7 @@ fig, axes = plt.subplots(2, 2, figsize=(16, 10))
 fig.suptitle("Language Popularity and Repository Distribution", fontsize=16)
 
 # Plot 1: Total stars accumulated by each programming language
+# Type: BIVARIATE ANALYSIS (Language vs Total Stars)
 stars_by_language = (
     df.groupby("language")["stargazers_count"]
     .sum()
@@ -53,6 +56,7 @@ axes[0, 0].set_ylabel("Total Stars")
 axes[0, 0].tick_params(axis="x", rotation=45)
 
 # Plot 2: Average stars per repository by language
+# Type: BIVARIATE ANALYSIS (Language vs Average Stars)
 avg_stars = (
     df.groupby("language")["stargazers_count"]
     .mean()
@@ -65,12 +69,14 @@ axes[0, 1].set_ylabel("Average Stars")
 axes[0, 1].tick_params(axis="x", rotation=45)
 
 # Plot 3: Distribution of stars across repositories
+# Type: UNIVARIATE ANALYSIS (Distribution of Stargazers Count)
 axes[1, 0].hist(df["stargazers_count"], bins=30)
 axes[1, 0].set_title("Distribution of Stars")
 axes[1, 0].set_xlabel("Stars")
 axes[1, 0].set_ylabel("Repository Count")
 
 # Plot 4: Relationship between stars and forks
+# Type: BIVARIATE ANALYSIS (Stars vs Forks)
 axes[1, 1].scatter(df["stargazers_count"], df["forks_count"], alpha=0.6)
 axes[1, 1].set_title("Forks vs Stars")
 axes[1, 1].set_xlabel("Stars")
@@ -92,6 +98,7 @@ fig, axes = plt.subplots(2, 2, figsize=(16, 10))
 fig.suptitle("Time-Based Trends and Repository Activity", fontsize=16)
 
 # Plot 1: Number of repositories created per year
+# Type: UNIVARIATE ANALYSIS (Repository Creation Trend Over Time)
 df["created_year"] = df["created_at"].dt.year
 repos_per_year = df["created_year"].value_counts().sort_index()
 repos_per_year.plot(kind="line", marker="o", ax=axes[0, 0])
@@ -100,6 +107,7 @@ axes[0, 0].set_xlabel("Year")
 axes[0, 0].set_ylabel("Number of Repositories")
 
 # Plot 2: Average inactivity duration by language
+# Type: BIVARIATE ANALYSIS (Language vs Days Since Last Update)
 activity_trend = (
     df.groupby("language")["days_since_last_update"]
     .mean()
@@ -112,6 +120,7 @@ axes[0, 1].set_ylabel("Days Since Last Update")
 axes[0, 1].tick_params(axis="x", rotation=45)
 
 # Plot 3: Classification of repositories as active or inactive
+# Type: UNIVARIATE ANALYSIS (Activity Status Distribution)
 df["activity_status"] = df["days_since_last_update"].apply(
     lambda x: "Active" if x <= 180 else "Inactive"
 )
@@ -122,6 +131,7 @@ axes[1, 0].set_xlabel("Status")
 axes[1, 0].set_ylabel("Count")
 
 # Plot 4: Recently updated repositories grouped by language
+# Type: BIVARIATE ANALYSIS (Language vs Recently Active Repositories)
 recent_repos = df[df["days_since_last_update"] <= 90]
 recent_by_language = recent_repos["language"].value_counts()
 recent_by_language.plot(kind="bar", ax=axes[1, 1])
@@ -146,6 +156,7 @@ fig, axes = plt.subplots(1, 2, figsize=(16, 6))
 fig.suptitle("Stars Distribution and Correlation Analysis", fontsize=16)
 
 # Plot 1: Box plot showing stars distribution for each language
+# Type: BIVARIATE ANALYSIS (Language vs Stars Distribution)
 sns.boxplot(
     x="language",
     y="stargazers_count",
@@ -158,6 +169,7 @@ axes[0].set_ylabel("Stars")
 axes[0].tick_params(axis="x", rotation=45)
 
 # Plot 2: Heatmap showing correlations between key metrics
+# Type: MULTIVARIATE ANALYSIS (Stars, Forks, Issues, Watchers, Popularity Score)
 corr_cols = [
     "stargazers_count",
     "forks_count",
