@@ -4,26 +4,26 @@ import seaborn as sns
 import os
 
 # -------------------------
-# Config
+# Configuration
 # -------------------------
 sns.set(style="whitegrid")
 plots_dir = "../plots/"
 os.makedirs(plots_dir, exist_ok=True)
 
 # -------------------------
-# Load data
+# Load Data
 # -------------------------
 df = pd.read_csv("../data/processed/featured_github_repos.csv")
+
+# Handle missing languages
+df["language"] = df["language"].fillna("Unknown")
 
 # Convert dates
 df["created_at"] = pd.to_datetime(df["created_at"])
 df["updated_at"] = pd.to_datetime(df["updated_at"])
 
-# Year-month for trends
-df["year_month"] = df["updated_at"].dt.to_period("M")
-
 # ==================================================
-# 1. Average Stars per Language (Popularity)
+# 1. Average Stars per Language
 # ==================================================
 language_popularity = (
     df.groupby("language")["stargazers_count"]
@@ -41,7 +41,7 @@ plt.savefig(f"{plots_dir}/01_language_popularity.png")
 plt.close()
 
 # ==================================================
-# 2. Average Watchers per Language (Community Interest)
+# 2. Average Watchers per Language
 # ==================================================
 watchers_per_language = (
     df.groupby("language")["watchers_count"]
@@ -77,16 +77,12 @@ plt.savefig(f"{plots_dir}/03_engagement_ratio.png")
 plt.close()
 
 # ==================================================
-# 4. Rust: Stars per Day vs Forks (Focused Community)
+# 4. Rust: Stars per Day vs Forks
 # ==================================================
 rust_df = df[df["language"] == "Rust"]
 
 plt.figure(figsize=(10, 6))
-sns.scatterplot(
-    data=rust_df,
-    x="stars_per_day",
-    y="forks_count"
-)
+sns.scatterplot(data=rust_df, x="stars_per_day", y="forks_count")
 plt.title("Rust: Stars per Day vs Forks")
 plt.xlabel("Stars per Day")
 plt.ylabel("Forks")
@@ -94,31 +90,25 @@ plt.savefig(f"{plots_dir}/04_rust_focus.png")
 plt.close()
 
 # ==================================================
-# 5. PHP Maintenance Pressure (Open Issues)
+# 5. PHP Maintenance Pressure
 # ==================================================
 php_df = df[df["language"] == "PHP"]
 
-# Sort and take top 10 by open issues
 top_php = php_df.sort_values(
     by="open_issues_count",
     ascending=False
 ).head(10)
 
-plt.figure(figsize=(10,6))
-sns.barplot(
-    x="open_issues_count",
-    y="repo_name",
-    data=top_php
-)
+plt.figure(figsize=(10, 6))
+sns.barplot(x="open_issues_count", y="repo_name", data=top_php)
 plt.title("Top 10 PHP Repositories by Open Issues")
 plt.xlabel("Open Issues")
 plt.ylabel("Repository")
 plt.savefig(f"{plots_dir}/05_php_maintenance.png")
 plt.close()
 
-
 # ==================================================
-# 6. C & C++ Stability: Age vs Engagement
+# 6. C & C++ Stability
 # ==================================================
 c_df = df[df["language"].isin(["C", "C++"])]
 
@@ -136,23 +126,23 @@ plt.savefig(f"{plots_dir}/06_c_cpp_stability.png")
 plt.close()
 
 # ==================================================
-# 7. Popularity vs Maintenance
+# 7. Popularity vs Maintenance (Log Scale)
 # ==================================================
 plt.figure(figsize=(10, 6))
 sns.scatterplot(
     data=df,
-    x="stargazers_count",
+    x="log_stars",
     y="open_issues_count",
     hue="language"
 )
-plt.title("Stars vs Open Issues")
-plt.xlabel("Stars")
+plt.title("Log(Stars) vs Open Issues")
+plt.xlabel("Log(Stars)")
 plt.ylabel("Open Issues")
 plt.savefig(f"{plots_dir}/07_popularity_vs_issues.png")
 plt.close()
 
 # ==================================================
-# 8. Star Growth per Language (Trending)
+# 8. Star Growth per Language
 # ==================================================
 stars_per_day_language = (
     df.groupby("language")["stars_per_day"]
@@ -173,18 +163,18 @@ plt.savefig(f"{plots_dir}/08_star_growth.png")
 plt.close()
 
 # ==================================================
-# 9. Forks vs Stars (Collaboration Depth)
+# 9. Forks vs Stars (Log Scale)
 # ==================================================
 plt.figure(figsize=(10, 6))
 sns.scatterplot(
     data=df,
-    x="stargazers_count",
-    y="forks_count",
+    x="log_stars",
+    y="log_forks",
     hue="language"
 )
-plt.title("Stars vs Forks")
-plt.xlabel("Stars")
-plt.ylabel("Forks")
+plt.title("Log(Stars) vs Log(Forks)")
+plt.xlabel("Log(Stars)")
+plt.ylabel("Log(Forks)")
 plt.savefig(f"{plots_dir}/09_fork_behavior.png")
 plt.close()
 
@@ -194,39 +184,45 @@ plt.close()
 repo_count = df["language"].value_counts()
 engagement_avg = df.groupby("language")["engagement_ratio"].mean()
 
-plt.figure(figsize=(12, 6))
+eco_df = pd.DataFrame({
+    "language": repo_count.index,
+    "repo_count": repo_count.values,
+    "engagement": engagement_avg.values
+})
+
+plt.figure(figsize=(10, 6))
 sns.scatterplot(
-    x=repo_count.index,
-    y=engagement_avg.values,
-    size=repo_count.values,
+    data=eco_df,
+    x="repo_count",
+    y="engagement",
+    size="repo_count",
     sizes=(200, 1200),
-    hue=repo_count.index,
-    legend=False
+    hue="language"
 )
 plt.title("Ecosystem Size vs Engagement")
-plt.xlabel("Language")
+plt.xlabel("Number of Repositories")
 plt.ylabel("Average Engagement Ratio")
 plt.savefig(f"{plots_dir}/10_ecosystem_size_vs_quality.png")
 plt.close()
 
 # ==================================================
-# 11. Repository Age vs Popularity
+# 11. Repository Age vs Popularity (Log Scale)
 # ==================================================
 plt.figure(figsize=(10, 6))
 sns.scatterplot(
     data=df,
     x="repo_age_years",
-    y="stargazers_count",
+    y="log_stars",
     hue="language"
 )
-plt.title("Repository Age vs Stars")
+plt.title("Repository Age vs Log(Stars)")
 plt.xlabel("Repository Age (Years)")
-plt.ylabel("Stars")
+plt.ylabel("Log(Stars)")
 plt.savefig(f"{plots_dir}/11_age_vs_popularity.png")
 plt.close()
 
 # ==================================================
-# 12. Activity Load (Issues vs Days Since Update)
+# 12. Activity Load
 # ==================================================
 plt.figure(figsize=(10, 6))
 sns.scatterplot(
@@ -241,6 +237,4 @@ plt.ylabel("Open Issues")
 plt.savefig(f"{plots_dir}/12_activity_load.png")
 plt.close()
 
-plt.tight_layout()
-
-print("All 12 insight visualizations generated successfully!")
+print("All 12 final insight visualizations generated successfully!")

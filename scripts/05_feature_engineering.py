@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 # --------------------------------------------------
 # STEP 5: FEATURE ENGINEERING
@@ -20,8 +21,24 @@ print("-" * 50)
 df["created_at"] = pd.to_datetime(df["created_at"], utc=True)
 df["updated_at"] = pd.to_datetime(df["updated_at"], utc=True)
 
+print("Date Columns Verified")
+print("-" * 50)
+
 # --------------------------------------------------
-# 3. Repository Age (in Years)
+# 3. Log Transformation (Reduce Skewness)
+# --------------------------------------------------
+# GitHub popularity metrics are highly right-skewed.
+# Log transformation stabilizes variance and improves analysis.
+
+df["log_stars"] = np.log1p(df["stargazers_count"])
+df["log_forks"] = np.log1p(df["forks_count"])
+df["log_watchers"] = np.log1p(df["watchers_count"])
+
+print("Log Features Created: log_stars, log_forks, log_watchers")
+print("-" * 50)
+
+# --------------------------------------------------
+# 4. Repository Age (in Years)
 # --------------------------------------------------
 # Shows how old the repository is
 df["repo_age_years"] = (
@@ -32,7 +49,7 @@ print("Feature Created: repo_age_years")
 print("-" * 50)
 
 # --------------------------------------------------
-# 4. Days Since Last Update
+# 5. Days Since Last Update
 # --------------------------------------------------
 # Indicates how recently the repository was active
 df["days_since_last_update"] = (
@@ -43,39 +60,42 @@ print("Feature Created: days_since_last_update")
 print("-" * 50)
 
 # --------------------------------------------------
-# 5. Popularity Score
+# 6. Popularity Score (Log-Based)
 # --------------------------------------------------
-# Combined popularity based on stars, forks, and watchers
-df["popularity_score"] = (
-    df["stargazers_count"]
-    + df["forks_count"]
-    + df["watchers_count"]
-)
+# Combined popularity using log-transformed metrics
+# Prevents extreme repositories from dominating analysis
 
-print("Feature Created: popularity_score")
+df["popularity_score"] = (
+    df["log_stars"]
+    + df["log_forks"]
+    + df["log_watchers"]
+).round(3)
+
+print("Feature Created: popularity_score (log-based)")
 print("-" * 50)
 
 # --------------------------------------------------
-# 6. Engagement Ratio
+# 7. Engagement Ratio
 # --------------------------------------------------
-# Measures active contribution compared to popularity
-# Division by zero is avoided
+# Measures contributor activity relative to popularity
+# +1 avoids division-by-zero errors
+
 df["engagement_ratio"] = (
-    df["forks_count"] / df["stargazers_count"].replace(0, 1)
+    df["forks_count"] / (df["stargazers_count"] + 1)
 ).round(3)
 
 print("Feature Created: engagement_ratio")
 print("-" * 50)
 
 # --------------------------------------------------
-# 7. Final Validation
+# 8. Final Validation
 # --------------------------------------------------
 print("Final Missing Values Check:")
 print(df.isnull().sum())
 print("-" * 50)
 
 # --------------------------------------------------
-# 8. Save Feature-Engineered Dataset
+# 9. Save Feature-Engineered Dataset
 # --------------------------------------------------
 df.to_csv("../data/processed/featured_github_repos.csv", index=False)
 

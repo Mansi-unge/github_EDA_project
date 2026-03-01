@@ -58,16 +58,34 @@ print("Date Columns Converted to Datetime")
 print("-" * 50)
 
 # --------------------------------------------------
-# 5. Handle Outliers
+# 5. Remove Outliers (Using IQR Method)
 # --------------------------------------------------
-# Capping extreme values at the 99th percentile
-# This prevents highly popular repositories from
-# skewing analysis and visualizations
-for col in ["stargazers_count", "forks_count", "size"]:
-    upper_limit = df[col].quantile(0.99)
-    df[col] = df[col].clip(upper=upper_limit)
+# Removing extreme values using Interquartile Range (IQR)
+# This ensures statistical robustness without arbitrary thresholds
 
-print("Outliers Capped at 99th Percentile")
+def remove_outliers_iqr(dataframe, column):
+    Q1 = dataframe[column].quantile(0.25)
+    Q3 = dataframe[column].quantile(0.75)
+    IQR = Q3 - Q1
+
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+
+    return dataframe[
+        (dataframe[column] >= lower_bound) &
+        (dataframe[column] <= upper_bound)
+    ]
+
+# Store original shape before removal
+original_shape = df.shape
+
+# Apply outlier removal to key numerical columns
+for col in ["stargazers_count", "forks_count", "size"]:
+    df = remove_outliers_iqr(df, col)
+
+print("Outliers Removed Using IQR Method")
+print("Dataset Shape Before:", original_shape)
+print("Dataset Shape After:", df.shape)
 print("-" * 50)
 
 # --------------------------------------------------
